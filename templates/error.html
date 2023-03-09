@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block titolo %}
+
+    {% if error == 404 %}
+        Pagina non trovata
+    {% elif error == 401 %}
+        Pagina non accessibile
+    {% endif %}
+    
+{% endblock %}
+
+{% block css %}{% endblock %}
+
+{% block js %}{% endblock %}
+
+{% block corpo %}
+
+    <main class="m-auto">
+        <p>
+            {% if error == 404 %}
+                La pagina a cui stai cercando di accedere non esiste, ritorna alla Home
+            {% elif error == 401 %}
+                Non puoi accedere a questa pagina, fai l'accesso e poi riprova
+            {% endif %}
+        </p>
+    </main>
+
+{% endblock %}

@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+
+{% block titolo %}{{ podcast['Title'] }}{% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='singleEpisode.css') }}">
+{% endblock %}
+
+{% block js %}
+    {{ super() }}
+{% endblock %}
+
+{% block corpo %}
+    <main>
+        <div class="container">
+            <div class="row">
+                <img src="{{ url_for('static', filename=podcast['Img']) }}" alt="Immagine podcast" class="img-fluid Image col">
+                <div class="col-7 ps-3">
+                    <h2>{{ episode['Title'] |e }}</h2>
+                    <div class="px-1">
+                        <a href="{{ url_for('podcast_page', pdId=podcast['PdId']) }}" class="link-primary text-decoration-none" title="Podcast" aria-label="Podcast"><strong>{{ podcast['Title'] |e }}</strong></a>
+                        <p class="Date">{{ episode['Date'] |e }}</p>
+                    </div>
+                    {% if current_user.is_authenticated %}
+                        <audio controls src="/static/{{ episode['Audio'] }}" aria-label="Audio">Traccia Episodio</audio>
+                    {% else %}
+                        <p class="mt-3"><strong>Accedi per ascoltare</strong></p>
+                    {% endif %}
+                </div>
+                <div class="col text-end">
+                    {% if current_user.is_authenticated and current_user.id == podcast['UserId'] %}
+                        <button type="button" class="NudeButton m-2" id="ModifyEpisode" data-bs-toggle="modal" data-bs-target="#modalModifyEpisode" title="Modifca Episodio" aria-label="Modifica Episodio">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                            </svg>
+                        </button>
+                        <a href="{{ url_for('delete_episode', pdId=podcast['PdId'], epId=episode['EpId']) }}" id="DeleteEpisode" title="Elimina Episodio" class="m-2" aria-label="Elimina Episodio">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                                <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>
+                            </svg>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row my-3">
+                <p>
+                    {{ episode['Description'] |e }}
+                </p>
+            </div>
+        </div>
+        
+        <div class="container">
+            {% if current_user.is_authenticated %}
+                <div class="row">
+                    <div class="col-7 ms-5 ps-5">
+                        <form action="/podcast{{ podcast['PdId'] }}/{{ episode['EpId'] }}/newComment" method="POST" id="newComment" enctype="multipart/form-data">
+                            <input name="Text" id="WriteComment" placeholder="Scrivi un commento..." minlength="1" maxlength="200" class="border rounded-4 p-2"></input>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+            {% for comment in comments %}
+                <div class="row">
+                    <div class="col-9 container Comments border rounded-4 mt-3 ms-3 me-2">
+                        <div class="row pt-2"> 
+                            <div class="col-6 fw-bold">
+                                {{ comment['Name'] |e }} {{ comment['Surname'] |e }}
+                            </div>
+                            <div class="col-6 text-end Date">
+                                {{ comment['Date'] |e }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <p class="col">{{ comment['Text'] |e }}</p>
+                        </div>
+                    </div>
+                    <div class="col-2 py-4">
+                    {% if current_user.is_authenticated and current_user.id == comment['UserId'] %}
+                        <button type="button" class="NudeButton m-2 ModifyComment" data-bs-toggle="modal" data-bs-target="#modify_{{ comment['ComId'] }}" title="Modifca Commento" aria-label="Modifica Commento">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                            </svg>
+                        </button>
+                        <a href="{{ url_for('delete_comment', pdId=podcast['PdId'], epId=episode['EpId'], comId=comment['ComId']) }}" title="Elimina Commento" class="m-2 DeleteComment" aria-label="Elimina commento">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                                <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>
+                            </svg>
+                        </a>
+
+                        <!-- Modale per modificare il commento -->
+                        <div class="modal fade" id="modify_{{ comment['ComId'] }}" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <!-- Titolo del modale -->
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5">Modifica il commento</h1>
+                                        <!-- Tasto X per chiudere il modale -->
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form action="/podcast{{ podcast['PdId'] }}/{{ episode['EpId'] }}/{{ comment['ComId'] }}/modifyComment" method="POST" enctype="multipart/form-data">
+                                        <div class="modal-body">
+                                            <!-- Testo -->
+                                            <div>
+                                                <label for="ComText" class="form-label">Testo commento</label>
+                                                <textarea class="form-control" name="Text" id="ComText" rows="4" minlength="1" maxlength="200" aria-label="Commento alla puntata" required>{{ comment['Text'] |e }}</textarea>
+                                            </div>
+                                        </div>
+                                        <!-- Tasti per chiudere e inviare il form -->
+                                        <div class="modal-footer">
+                                            <button type="submit" class="btn ModalButton" aria-label="Modifica Episodio">Modifica</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                    {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </main>
+    
+
+    {% if current_user.is_authenticated and current_user.id == podcast['UserId'] %}
+    <!-- Modale per modificare l'episodio -->
+    <div class="modal fade" id="modalModifyEpisode" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- Titolo del modale -->
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5">Modifica l'episodio</h1>
+                    <!-- Tasto X per chiudere il modale -->
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="/podcast{{ podcast['PdId'] }}/{{ episode['EpId'] }}/modifyEpisode" method="POST" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <!-- Titolo -->
+                        <div>
+                            <label for="EpTitle" class="form-label">Titolo</label>
+                            <input type="text" class="form-control" name="Title" id="EpTitle" minlength="5" maxlength="50" value="{{ episode['Title'] |e }}" aria-label="Titolo" required>
+                        </div>
+                        <!-- Descrizione -->
+                        <div>
+                            <label for="EpDesc" class="form-label">Descrizione</label>
+                        <textarea class="form-control" name="Description" id="EpDesc" rows="5" minlength="30" maxlength="300" aria-label="Descrizione della puntata" required>{{ episode['Description'] |e }}</textarea>
+                        </div>
+                        <!-- Data -->
+                        <div>
+                            <label for="EpDate" class="form-label">Data<span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" name="Date" id="EpDate" aria-label="Data" value="{{ episode['Date'] }}" max="{{ today }}" required></textarea>
+                        </div>
+                        <!-- Audio -->
+                        <div>
+                            <label for="Audio" class="form-label">Traccia audio (.mp3, .wav, .ogg)</label>
+                            <input type="file" class="form-control" name="Audio" id="Audio" accept=".mp3, .wav, .ogg" aria-label="Tracia audio">
+                        </div>
+                    </div>
+                    <!-- Tasti per chiudere e inviare il form -->
+                    <div class="modal-footer">
+                        <button type="submit" class="btn ModalButton" aria-label="Modifica Episodio">Modifica</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+{% endblock %}

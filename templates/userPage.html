@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block titolo %}{{ current_user.name }}{% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='userPage.css') }}">
+{% endblock %}
+
+{% block js %}
+    <script defer src="/static/userPage.js"></script>
+{% endblock %}
+
+{% block corpo %}
+    <main>
+        <hgroup>
+            <h2 class="mb-3">Il mio account</h2>
+            <ul class="container list-unstyled">
+                <li class="row">
+                    <h3 class="col">Email</h3>
+                    <p class="col">{{ current_user.email }}</p>
+                </li>
+                <li class="row">
+                    <h3 class="col">Nome</h3>
+                    <p class="col">{{ current_user.name }}</p>
+                </li>
+                <li class="row">
+                    <h3 class="col">Cognome</h3>
+                    <p class="col">{{ current_user.surname }}</p>
+                </li>
+            </ul>
+        </hgroup>
+
+        {% if current_user.creator == 'Yes' %}
+            <p><strong>Complimenti, sei un creatore di podcast!!</strong></p>
+        {% endif %}
+
+        <h3 class="text-center mt-4">Podcast seguiti</h3>
+        <div class="col-9 m-auto" id="PodcastFollowed">
+            {% for podcast in podcasts %}
+                {# Ogni podcast è link alla funzione che visualizza la singola pagina del singolo podcast #}
+                <article class="container position-relative p-3 Podcast" aria-label="{{ podcast['Title'] }}">
+                    <div class="row">
+                        <!-- Foto del podcast -->
+                        <div class="col-3 m-auto">
+                            <img src="{{ url_for('static', filename=podcast['Img']) }}" alt="Immagine podcast" class="ImageMain img-fluid">
+                        </div>
+    
+                        <div class="col-9">
+                            <a href="{{ url_for('podcast_page', pdId=podcast['PdId']) }}" class="stretched-link" aria-link="{{ podcast['Title'] }}"></a>
+                            <h2>{{ podcast['Title'] |e}}</h2>
+                            <p class="my-0 ps-1">
+                                <strong>{{ podcast['Name'] |e }} {{ podcast['Surname'] |e }}</strong>
+                            </p>
+                            <p class="Category my-0 ps-1">
+                                #{{ podcast['Category'] |e}}
+                            </p>
+                            <p class="mb-0 mt-3 ps-1">
+                                {{ podcast['Description'] |e }}
+                            </p>
+                        </div>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+
+    </main>
+{% endblock %}

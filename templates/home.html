@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block titolo %}Home{% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='home.css') }}">
+{% endblock %}
+
+{% block js %}
+    <script defer src="/static/home.js"></script>
+{% endblock %}
+
+{% block corpo %}
+
+    <main class="col-9 rounded-4" aria-label="Lista dei podcast">
+        {% for podcast in podcasts %}
+            {# Ogni podcast è link alla funzione che visualizza la singola pagina del singolo podcast #}
+            <article class="container position-relative my-3 Podcast" aria-label="{{ podcast['Title'] }}">
+                <div class="row">
+                    <!-- Foto del podcast -->
+                    <div class="col-3 m-auto">
+                        <img src="{{ url_for('static', filename=podcast['Img']) }}" alt="Immagine podcast" class="ImageMain img-fluid">
+                    </div>
+
+                    <div class="col-9">
+                        <a href="{{ url_for('podcast_page', pdId=podcast['PdId']) }}" class="stretched-link" aria-link="{{ podcast['Title'] }}"></a>
+                        <h2>{{ podcast['Title'] |e}}</h2>
+                        <p class="my-0 ps-1">
+                            <strong>{{ podcast['Name'] |e }} {{ podcast['Surname'] |e }}</strong>
+                        </p>
+                        <p class="Category my-0 ps-1">
+                            #{{ podcast['Category'] |e}}
+                        </p>
+                        <p class="mb-0 mt-3 ps-1">
+                            {{ podcast['Description'] |e }}
+                        </p>
+                    </div>
+                </div>
+            </article>
+        {% endfor %}
+    </main>
+
+    <aside class="col px-0 order-first">
+        <h2>Categorie</h2>
+        <ul class="list-unstyled mx-2">
+            <li><button class="ButtonLink" title="" class="link-primary text-decoration-none">Tutti</a></li>
+        </ul>
+    </aside>
+
+    {% if current_user.is_authenticated and current_user.creator == 'Yes' %}
+        <!-- Bottone per creare un nuovo podcast. Se ho fatto l'accesso c'è, se no no -->  
+        <button type="button" title="Crea Podcast" id="Crea" class="w-auto NudeButton position-fixed bottom-0 end-0 m-4" data-bs-toggle="modal" data-bs-target="#newPodcastModal" aria-label="Crea nuovo podcast">
+            <svg xmlns="http://www.w3.org/2000/svg" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
+            </svg>
+        </button>
+        
+        <!-- Modale per creare nuovo podcast -->
+        <div class="modal fade" id="newPodcastModal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- Titolo del modale -->
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5">Crea un nuovo podcast</h1>
+                    <!-- Tasto X per chiudere il modale -->
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="/newPodcast" method="POST" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <!-- Titolo -->
+                        <div>
+                            <label for="PdTitle" class="form-label">Titolo<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="Title" id="PdTitle" minlength="5" maxlength="50" aria-label="Titolo" required>
+                        </div>
+                        <!-- Immagine del podcast -->
+                        <div>
+                            <label for="PdImg" class="form-label">Immagine (.jpeg, .jpg, .png)<span class="text-danger">*</span></label>
+                            <input type="file" class="form-control" name="Img" id="PdImg" accept=".jpeg, .png, .jpg" aria-label="Immagine del podcast" required>
+                        </div>
+                        <!-- Descrizione -->
+                        <div>
+                            <label for="PdDesc" class="form-label">Descrizione<span class="text-danger">*</span></label>
+                            <textarea class="form-control" name="Description" id="PdDesc" rows="5" cols="20" minlength="30" maxlength="300" placeholder="Inserisci una descrizione per il tuo podcast" aria-label="Descrizione del podcast" required></textarea>
+                        </div>
+                        <!-- Categoria -->
+                        <div>
+                            <label for="PdCat" class="form-label">Categoria<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="Category" minlength="4" maxlength="25" id="PdCat" aria-label="Categoria" required>
+                        </div>
+                        <p class="mt-2 mb-0"><span class="text-danger">*</span>Campi obbligatori</p>
+                    </div>
+                    <!-- Tasti per chiudere e inviare il form -->
+                    <div class="modal-footer">
+                        <button type="submit" class="btn ModalButton" aria-label="Crea podcast">Crea podcast</button>
+                    </div>
+                </form>
+            </div>
+            </div>
+        </div>
+    {% endif %}
+
+{% endblock %}

@@ -1,0 +1,49 @@
+h2 {
+    font-size: 3rem;
+}
+
+h3 {
+    font-size: 1.2rem;
+}
+
+#Episode {
+    width: 80%;
+}
+
+#EpisodeList {
+    background-color: white;
+}
+
+#Follow:active {
+    transform: translateY(2px);
+}
+
+#Unfollow:active {
+    transform: translateY(2px);
+}
+
+
+#Search {
+    width: 50%;
+    border-radius: 10px;
+}
+
+hr {
+    width: 90%;
+}
+
+.ImageMini {
+    height: 70px;
+    width: 70px;
+    object-fit: cover;
+}
+
+#ModifyPodcast > svg{
+    width: 26px;
+    height: 26px;
+}
+
+#DeletePodcast > svg {
+    width: 25px;
+    height: 25px;
+}

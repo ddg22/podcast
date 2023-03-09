@@ -1,0 +1,4 @@
+# Librerie necessarie:
+flask
+Flask-Session
+flask-login
